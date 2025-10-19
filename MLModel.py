@@ -122,7 +122,7 @@ class MLModel:
 
         return df
     
-    def get_accuracy_full(self, X, y_true):
+    def get_accuracy_full(self, X, y):
         y_pred = self.model.predict(X)
 
         accuracy = accuracy_score(y, y_pred)
