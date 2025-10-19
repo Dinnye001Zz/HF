@@ -4,8 +4,11 @@ from sklearn.preprocessing import LabelEncoder
 import pickle
 pd.set_option('display.max_columns', None)
 
-"""GOAL: Preprocess the dataset and save the necessary artifacts
-(label encoders, scaler) for later use in the pipeline."""
+"""This file: Data Scientist gives this type of preprocessed python files to the ML Engineer.
+The ML Enginieer uses this code to understand what preprocessing steps were applied and tries to reproduce it.
+- property_id was dropped as it's just an identifier, not useful for ML.
+- "decision" (y) is not preprocessed and is not part of the preprocessed df as it was already binary.
+"""
 
 df = pd.read_csv('data/global_house_purchase_dataset.csv')
 
@@ -32,9 +35,9 @@ for col in CATEGORICAL_COLS:
     df_encoded[col] = le.fit_transform(df_encoded[col])
     label_encoders[col] = le
 
-# Save the label encoders for later use
+"""# Save the label encoders for later use
 with open('artifacts/label_encoders.pkl', 'wb') as f:
-    pickle.dump(label_encoders, f)
+    pickle.dump(label_encoders, f)"""
 
 # 3. Numerical columns with wide ranges - Standardize (mean=0, std=1)
 NUMERICAL_COLS = [
@@ -76,9 +79,12 @@ all_numerical_to_scale = NUMERICAL_COLS + ORDINAL_COLS
 scaler = StandardScaler()
 df_encoded[all_numerical_to_scale] = scaler.fit_transform(df_encoded[all_numerical_to_scale])
 
-# Save the scaler
-with open('artifacts/scaler.pkl', 'wb') as f:
-    pickle.dump(scaler, f)
+#print(f'df_encoded.columns: {df_encoded.columns}')
+#print(df_encoded.head())
 
-# Save the preprocessed dataframe
-df_encoded.to_csv('artifacts/preprocessed_data.csv', index=False)
+# Save the scaler
+"""with open('artifacts/scaler.pkl', 'wb') as f:
+    pickle.dump(scaler, f)"""
+
+"""# Save the preprocessed dataframe
+df_encoded.to_csv('artifacts/preprocessed_data.csv', index=False)"""

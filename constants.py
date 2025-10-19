@@ -32,3 +32,29 @@ DISCRETE_COLS = [
     'neighbourhood_rating',
     'connectivity_score'
 ]
+
+COLUMN_ORDER_AFTER_PREPROCESSING = [
+    'country',
+    'city',
+    'property_type',
+    'furnishing_status',
+    'property_size_sqft',
+    'price',
+    'constructed_year',
+    'previous_owners',
+    'rooms',
+    'bathrooms',
+    'garage',
+    'garden',
+    'crime_cases_reported',
+    'legal_cases_on_property',
+    'customer_salary',
+    'loan_amount',
+    'loan_tenure_years',
+    'monthly_expenses',
+    'down_payment',
+    'emi_to_income_ratio',
+    'satisfaction_score',
+    'neighbourhood_rating',
+    'connectivity_score']
+    #'decision'  Target column

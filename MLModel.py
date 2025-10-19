@@ -1,93 +1,107 @@
 import pickle
 import os
-from constants import NUMERICAL_COLS, CATEGORICAL_COLS, ORDINAL_COLS, BINARY_COLS, DISCRETE_COLS
+from flask import jsonify
+from constants import NUMERICAL_COLS, CATEGORICAL_COLS, ORDINAL_COLS, BINARY_COLS, DISCRETE_COLS, COLUMN_ORDER_AFTER_PREPROCESSING
 from xgboost import XGBClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder, StandardScaler
+pd.set_option('display.max_columns', None)
 
 class MLModel:
+    # This part always run when you create an object from MLModel class
     def __init__(self):
         self.label_encoders = (MLModel.load_model(
-            'artifacts/label_encoders.pkl')
-                if os.path.exists('artifacts/label_encoders.pkl')
-                else print("label_encoders.pkl does not exist."))
+            'artifacts/encoders/label_encoder.pkl')
+                if os.path.exists('artifacts/encoders/label_encoder.pkl')
+                else print("label_encoder.pkl does not exist."))
             
         self.scaler = (MLModel.load_model(
-            'artifacts/scaler.pkl')
-                if os.path.exists('artifacts/scaler.pkl')
+            'artifacts/scalers/scaler.pkl')
+                if os.path.exists('artifacts/scalers/scaler.pkl')
                 else print("scaler.pkl does not exist."))
 
         self.model = (MLModel.load_model(
-            'artifacts/xgb_model.pkl')
-                if os.path.exists('artifacts/xgb_model.pkl')
+            'artifacts/models/xgb_model.pkl')
+                if os.path.exists('artifacts/models/xgb_model.pkl')
                 else print("xgb_model.pkl does not exist."))
 
     @staticmethod
-    def save_model(model, path):
-        with open(path, 'wb') as file:
+    def save_model(model, file_path):
+        with open(file_path, 'wb') as file:
             pickle.dump(model, file)
 
     @staticmethod
-    def load_model(path):
-        with open(path, 'rb') as file:
-            return pickle.load(file)
+    def load_model(file_path):
+        with open(file_path, 'rb') as file:
+            model = pickle.load(file)
+        return model
     
     def preprocess_pipeline(self, df):
-        df = df.copy()
-        if 'property_id' in df.columns:
-            df = df.drop('property_id', axis=1)
+        #1. Drop property_id.
+        df = df.drop('property_id', axis=1)
 
-        df_preprocessed = df.copy()
-        
+        df = df.copy()
+
+        # 2. Categorical columns - Label encode to numerical values
         label_encoders = {}
         for col in CATEGORICAL_COLS:
             le = LabelEncoder()
-            df_preprocessed[col] = le.fit_transform(df_preprocessed[col])
+            df[col] = le.fit_transform(df[col])
             label_encoders[col] = le
-        
-        os.makedirs('artifacts', exist_ok=True)
-        with open('artifacts/label_encoders.pkl', 'wb') as f:
-            pickle.dump(label_encoders, f)
-        
-        scaler = StandardScaler()
-        all_numerical_to_scale = NUMERICAL_COLS + ORDINAL_COLS
-        df_preprocessed[all_numerical_to_scale] = scaler.fit_transform(df_preprocessed[all_numerical_to_scale])
-        
-        with open('artifacts/scaler.pkl', 'wb') as f:
-            pickle.dump(scaler, f)
-        
-        self.label_encoders = label_encoders
-        self.scaler = scaler
-        return df_preprocessed
 
-    def train_and_save_model(self, df_preprocessed):
-        X = df_preprocessed.drop('decision', axis=1)
-        y = df_preprocessed['decision']
+        # 3. Apply standardization to continuous and ordinal columns
+        all_numerical_to_scale = NUMERICAL_COLS + ORDINAL_COLS
+        scaler = StandardScaler()
+        df[all_numerical_to_scale] = scaler.fit_transform(df[all_numerical_to_scale])
+        
+        # SAVE ARTIFACTS
+            #encoder
+        os.makedirs('artifacts/encoders', exist_ok=True)
+        with open('artifacts/encoders/label_encoder.pkl', 'wb') as f:
+            pickle.dump(label_encoders, f)
+
+            #scaler
+        os.makedirs('artifacts/scalers', exist_ok=True)
+        with open('artifacts/scalers/scaler.pkl', 'wb') as f:
+            pickle.dump(scaler, f)
+
+        """NINCS LEMENTVE A MODEL (XGB)"""
+
+        return df
+
+    def train_and_save_model(self, df):
+        print("Starting train_and_save_model")
+
+        X = df.drop('decision', axis=1)
+        y = df['decision']
+
+        print("Split X and y")
 
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, random_state=42)
+        print("Split train/test")
 
-        self.model = XGBClassifier(
-                    max_depth=2,
-                    n_estimators=5
-        )
-        self.model.fit(X_train, y_train)
+        xgb = XGBClassifier(max_depth=2, n_estimators=5)
+        xgb.fit(X_train, y_train)
+        print("Model fit")
 
-        y_train_pred = self.model.predict(X_train)
-        y_test_pred = self.model.predict(X_test)
+        self.model = xgb
 
-        train_accuracy = accuracy_score(y_train, y_train_pred)
-        test_accuracy = accuracy_score(y_test, y_test_pred)
-
-        print(f"Train Accuracy: {train_accuracy}")
-        print(f"Test Accuracy: {test_accuracy}")
-
-        return train_accuracy, test_accuracy
+        train_accuracy, test_accuracy = self.get_accuracy(X_train, X_test, y_train, y_test)
+        print("Got accuracy")
+        """Itt kellene elementeni a modellt?!?"""
+        #I added model save
+        os.makedirs('artifacts/models', exist_ok=True)
+        with open('artifacts/models/xgb_model.pkl', 'wb') as f:
+            pickle.dump(xgb, f)
+        print("Model saved")
+        return train_accuracy, test_accuracy, xgb
     
     def preprocess_pipeline_inference(self, infer_array):
-        columns = CATEGORICAL_COLS + NUMERICAL_COLS + ORDINAL_COLS + BINARY_COLS + DISCRETE_COLS
-        
+        columns = COLUMN_ORDER_AFTER_PREPROCESSING #it doesnt have 'decision' column
+
+        print(f'infer array: {infer_array}')
         df = pd.DataFrame([infer_array], columns=columns)
 
         if self.label_encoders:
@@ -99,23 +113,51 @@ class MLModel:
             all_numerical_to_scale = NUMERICAL_COLS + ORDINAL_COLS
             df[all_numerical_to_scale] = self.scaler.transform(df[all_numerical_to_scale])
 
-        expected_column_order = (
-            CATEGORICAL_COLS +
-            NUMERICAL_COLS +
-            ORDINAL_COLS +
-            BINARY_COLS +
-            DISCRETE_COLS
-        )
+        expected_column_order = COLUMN_ORDER_AFTER_PREPROCESSING
         
         columns_to_use = [col for col in expected_column_order if col in df.columns]
         df = df[columns_to_use]
 
+        print(f'MLMODEL: df.head(1): {df.head(1)}')
+
         return df
     
     def get_accuracy_full(self, X, y_true):
-        if self.model is None:
-            raise ValueError("Model is not trained yet")
-        
         y_pred = self.model.predict(X)
-        accuracy = accuracy_score(y_true, y_pred)
+
+        accuracy = accuracy_score(y, y_pred)
+
+        print("Accuracy: ", accuracy)
+
         return accuracy
+    
+
+    def get_accuracy(self, X_train, X_test, y_train, y_test):
+        y_train_pred = self.model.predict(X_train)
+
+        y_test_pred = self.model.predict(X_test)
+
+        train_accuracy = accuracy_score(y_train, y_train_pred)
+        test_accuracy = accuracy_score(y_test, y_test_pred)
+
+        print("Train Accuracy: ", train_accuracy)
+        print("Test Accuracy: ", test_accuracy)
+
+        return train_accuracy, test_accuracy
+
+
+    def predict(self, inference_row):
+        try:
+            infer_array = pd.Series(inference_row, dtype=str)
+            print("Received inference_row:", infer_array)
+
+            df = self.preprocess_pipeline_inference(infer_array)
+            df.drop('decision', axis=1, inplace=True)
+
+            y_pred = self.model.predict(df)
+
+            return int(y_pred)
+
+        except Exception as e:
+            return jsonify({'message': 'Internal Server Error. ',
+                        'error': str(e)}), 500

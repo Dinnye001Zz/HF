@@ -7,3 +7,5 @@ flask
 flask_restx
 gunicorn
 pytest
+mlflow
+requests
