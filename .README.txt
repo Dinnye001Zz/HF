@@ -4,6 +4,35 @@ Run app.py/flask app: 'python app.py'
 ip: http://127.0.0.1:8080
 mlflow server --host 127.0.0.1 --port 5102
 
+INFERENCE EXAMPLE:
+{
+  "inference_row": [
+    "France",
+    "Marseille",
+    "Farmhouse",
+    "Semi-Furnished",
+    "991",
+    "412935",
+    "1989",
+    "6",
+    "6",
+    "2",
+    "1",
+    "1",
+    "1",
+    "0",
+    "10745",
+    "193949",
+    "15",
+    "6545",
+    "218986",
+    "0.16",
+    "1",
+    "5",
+    "6"
+  ]
+}
+
 data_analysis_and_preprocessing.py df column order after preprocessing:
 'country'
 'city'
@@ -29,42 +58,3 @@ data_analysis_and_preprocessing.py df column order after preprocessing:
 'neighbourhood_rating',
 'connectivity_score'
 'decision'
-
-head: [4, 21, 1, 1, -1.366521, -0.974224, -0.134518, 6, 6, 2, 1, 1, 1, 0, -1.278111, -1.030733, -0.704185, -0.739732, -0.651874, -0.161080, 1, 5, 6, 0]
-first row: [1,France,Marseille,Farmhouse,Semi-Furnished,991,412935,1989,6,6,2,1,1,1,0,10745,193949,15,6545,218986,0.16,1,5,6,0]
-
-{
-  "inference_row": [
-    1, # azt hiszem ez az oszlop lett kitörölve
-    "France",
-    "Marseille",
-    "Farmhouse",
-    "Semi-Furnished",
-    991,
-    412935,
-    1989,
-    6,
-    6,
-    2,
-    1,
-    1,
-    1,
-    0,
-    10745,
-    193949,
-    15,
-    6545,
-    218986,
-    0.16,
-    1,
-    5,
-    6"
-  ]
-}
-
-{
-  "inference_row": [
-    3, 4, 1, 1, -1.256119, -0.644389, -0.201468, 6, 6, 2, 1, 1, 1, 0, -0.874764,
-    -0.768698, -0.846154, -0.778516, -0.41353, 0.107583, 1, 5, 6
-  ]
-}
