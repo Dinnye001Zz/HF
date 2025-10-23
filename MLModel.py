@@ -59,7 +59,7 @@ class MLModel:
         # 1. Drop property_id.
         df = df.drop("property_id", axis=1)
 
-        df = df.copy()
+        #df = df.copy()
 
         # 2. Categorical columns - Label encode to numerical values
         label_encoders = {}
@@ -112,38 +112,49 @@ class MLModel:
         )
         print("Got accuracy")
         """Itt kellene elementeni a modellt?!?"""
-        # I added model save
+        """# I added model save
         os.makedirs("artifacts/models", exist_ok=True)
         with open("artifacts/models/xgb_model.pkl", "wb") as f:
             pickle.dump(xgb, f)
-        print("Model saved")
+        print("Model saved")"""
         return train_accuracy, test_accuracy, xgb
 
-    def preprocess_pipeline_inference(self, infer_array):
-        columns = COLUMN_ORDER_AFTER_PREPROCESSING  # it doesnt have 'decision' column
-
-        print(f"infer array: {infer_array}")
-        df = pd.DataFrame([infer_array], columns=columns)
+    def preprocess_pipeline_inference(self, sample_data):
+        print(f"infer array: {sample_data}")
+        print(f"Length of infer_array: {len(sample_data)}")
+        print("COLUMN_ORDER_AFTER_PREPROCESSING:", COLUMN_ORDER_AFTER_PREPROCESSING)
+        print("Length of COLUMN_ORDER_AFTER_PREPROCESSING:", len(COLUMN_ORDER_AFTER_PREPROCESSING))
+        
+        try:
+            sample_data = pd.DataFrame([sample_data], columns=COLUMN_ORDER_AFTER_PREPROCESSING)
+        except Exception as e:
+            print("Error creating DataFrame:", e)
+            raise
+        print(f"MLMODEL: df.head(1): {sample_data.head(1)}")
 
         if self.label_encoders:
             for col in CATEGORICAL_COLS:
-                if col in df.columns:
-                    df[col] = self.label_encoders[col].transform(df[col])
+                if col in sample_data.columns:
+                    sample_data[col] = self.label_encoders[col].transform(sample_data[col])
 
         if self.scaler:
             all_numerical_to_scale = NUMERICAL_COLS + ORDINAL_COLS
-            df[all_numerical_to_scale] = self.scaler.transform(
-                df[all_numerical_to_scale]
+            sample_data[all_numerical_to_scale] = self.scaler.transform(
+                sample_data[all_numerical_to_scale]
             )
+
+        for col in sample_data.columns:
+                if col not in CATEGORICAL_COLS:
+                    sample_data[col] = sample_data[col].astype(float)
 
         expected_column_order = COLUMN_ORDER_AFTER_PREPROCESSING
 
-        columns_to_use = [col for col in expected_column_order if col in df.columns]
-        df = df[columns_to_use]
+        columns_to_use = [col for col in expected_column_order if col in sample_data.columns]
+        sample_data = sample_data[columns_to_use]
 
-        print(f"MLMODEL: df.head(1): {df.head(1)}")
+        print(f"MLMODEL: df.head(1): {sample_data.head(1)}")
 
-        return df
+        return sample_data
 
     def get_accuracy_full(self, X, y):
         y_pred = self.model.predict(X)
@@ -168,16 +179,9 @@ class MLModel:
         return train_accuracy, test_accuracy
 
     def predict(self, inference_row):
-        try:
-            infer_array = pd.Series(inference_row, dtype=str)
-            print("Received inference_row:", infer_array)
+        if self.model is None:
+            return {'error': 'No staging model is loaded'}, 400
 
-            df = self.preprocess_pipeline_inference(infer_array)
-            df.drop("decision", axis=1, inplace=True)
-
-            y_pred = self.model.predict(df)
-
-            return int(y_pred)
-
-        except Exception as e:
-            return jsonify({"message": "Internal Server Error. ", "error": str(e)}), 500
+        processed_data = self.preprocess_pipeline_inference(inference_row)
+        prediction = self.model.predict(processed_data)
+        return int(prediction)

@@ -56,3 +56,28 @@ def test_prediction_accuracy():
     print(f"Accuracy from inference pipeline: {accuracy_inference_pipeline_full}")
 
     assert accuracy_train_pipeline_full == accuracy_inference_pipeline_full, "Inference prediction accuracy is not as expected."
+
+def test_column_order_consistency():
+    obj_mlmodel = MLModel()
+    data_path = 'data/global_house_purchase_dataset.csv'
+    df = pd.read_csv(data_path).head(10)
+
+    # Train pipeline
+    df_preprocessed_train = obj_mlmodel.preprocess_pipeline(df)
+    train_columns = df_preprocessed_train.drop('decision', axis=1).columns.tolist()
+
+    # Inference
+    obj_mlmodel = MLModel()
+    preprocessed_list = []
+    for i in df.iterrows():
+        preprocessed_list.append(
+            obj_mlmodel.preprocess_pipeline_inference(i[1])
+        )
+    df_preprocessed_infer = pd.concat(preprocessed_list)
+    infer_columns = df_preprocessed_infer.columns.tolist()
+
+    #print(f"Train head: {df_preprocessed_train.head(1)}")
+    #print(f"Inference head: {df_preprocessed_infer.head(1)}")
+    print(f"Train columns: {train_columns}")
+    print(f"Inference columns: {infer_columns}")
+    assert train_columns == infer_columns, "Column order mismatch between train and inference pipelines!"

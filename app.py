@@ -17,7 +17,7 @@ predict_model = api.model(
     "PredictModel",
     {
         "inference_row": fields.List(
-            fields.Raw, required=True, description="A row of data for inference"
+            fields.String, required=True, description="A row of raw feature values for inference"
         )
     },
 )
@@ -56,6 +56,7 @@ class Train(Resource):
             obj_mlmodel.save_model(xgb, "artifacts/models/xgb_model.pkl")
             df.to_csv("artifacts/preprocessed/saved_dataframe_new.csv", index=False)
             os.remove(data_path)
+            print("Training completed and model saved.")
 
             return {
                 "message": "Model Trained Successfully",
@@ -66,7 +67,7 @@ class Train(Resource):
             return {"message": "Internal Server Error", "error": str(e)}, 500
 
 
-@ns.route("/predict")
+@ns.route('/predict')
 class Predict(Resource):
     @api.expect(predict_model)
     def post(self):
@@ -76,8 +77,10 @@ class Predict(Resource):
                 return {"error": "No inference_row found"}, 400
 
             infer_array = data["inference_row"]
+            print(f'infer array: {infer_array}')
             df = obj_mlmodel.preprocess_pipeline_inference(infer_array)
-            y_pred = obj_mlmodel.model.predict(df)
+            print(f"Preprocessed data for prediction: {df}")
+            y_pred = obj_mlmodel.predict(infer_array)
 
             return {"message": "Inference Successful", "prediction": int(y_pred)}, 200
         except Exception as e:
