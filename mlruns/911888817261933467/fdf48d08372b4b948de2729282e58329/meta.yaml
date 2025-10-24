@@ -1,0 +1,14 @@
+artifact_uri: mlflow-artifacts:/911888817261933467/fdf48d08372b4b948de2729282e58329/artifacts
+end_time: 1761303366609
+entry_point_name: ''
+experiment_id: '911888817261933467'
+lifecycle_stage: active
+run_id: fdf48d08372b4b948de2729282e58329
+run_name: train_20251024_125557
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1761303357993
+status: 3
+tags: []
+user_id: Blanka

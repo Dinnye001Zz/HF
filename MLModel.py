@@ -1,4 +1,4 @@
-import os, pickle, mlflow, json
+import pickle, mlflow, tempfile, os
 from constants import (
     NUMERICAL_COLS,
     CATEGORICAL_COLS,
@@ -16,7 +16,7 @@ pd.set_option("display.max_columns", None)
 
 
 class MLModel:
-    # This part always run when you create an object from MLModel class
+    # This part always runs when you create an object from MLModel class
     def __init__(self, client):
         """self.label_encoders = (
             MLModel.load_model("artifacts/encoders/label_encoder.pkl")
@@ -150,14 +150,16 @@ class MLModel:
             pickle.dump(scaler, f)"""
 
         """NINCS LEMENTVE A MODEL (XGB)"""
-        # Serialize and log scalers and encoders
-        with open("artifacts/encoders/label_encoder.pkl", "wb") as f:
-            pickle.dump(self.label_encoder, f)
-        mlflow.log_artifact("artifacts/encoders/label_encoder.pkl")
+        with tempfile.TemporaryDirectory() as tmpdir:
+            label_encoder_path = os.path.join(tmpdir, "label_encoder.pkl")
+            with open(label_encoder_path, "wb") as f:
+                pickle.dump(self.label_encoder, f)
+            mlflow.log_artifact(label_encoder_path)
 
-        with open("artifacts/scalers/scaler.pkl", "wb") as f:
-            pickle.dump(self.scaler, f)
-        mlflow.log_artifact("artifacts/scalers/scaler.pkl")
+            scaler_path = os.path.join(tmpdir, "scaler.pkl")
+            with open(scaler_path, "wb") as f:
+                pickle.dump(self.scaler, f)
+            mlflow.log_artifact(scaler_path)
 
         return df
 

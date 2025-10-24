@@ -6,10 +6,9 @@ import pandas as pd
 from MLModel import MLModel
 from mlflow import MlflowClient
 from datetime import datetime
-from constants import CATEGORICAL_COLS
 
 # Set MLflow tracking URI
-mlflow.set_tracking_uri("http://127.0.0.1:5102")
+mlflow.set_tracking_uri("http://0.0.0.0:5102")
 
 # Set default experiment
 experiment_name = "default_experiment"
@@ -165,4 +164,4 @@ class Predict(Resource):
 
 if __name__ == "__main__":
     print("Starting Flask server...")
-    app.run(host="127.0.0.1", port=8080, debug=False)
+    app.run(host="0.0.0.0", port=8080, debug=False)

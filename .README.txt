@@ -1,7 +1,8 @@
 Create venv: 'python -m venv .venv'
 Run tests: 'pytest tests/test_train_inference.py'
 Run app.py/flask app: 'python app.py'
-ip: http://127.0.0.1:8080
+API ip: http://127.0.0.1:8080
+MLFlow ip: http://127.0.0.1:5102
 mlflow server --host 127.0.0.1 --port 5102
 
 INFERENCE EXAMPLE:

@@ -8,3 +8,5 @@ gunicorn
 pytest
 mlflow
 requests
+datetime
+docker
