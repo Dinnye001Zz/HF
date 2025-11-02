@@ -10,3 +10,5 @@ mlflow
 requests
 datetime
 docker
+apache-airflow
+airflow.operators

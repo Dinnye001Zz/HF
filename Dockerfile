@@ -18,7 +18,7 @@ COPY mlartifacts ./mlartifacts
 ENV MLFLOW_TRACKING_URI ="file:///app/mlruns"
 
 # Command to run your app
-CMD ["bash", "-c", "mlflow server --host 0.0.0.0 --port 5102 --backend-store-uri file:/app/mlruns --default-artifact-root /app/mlartifacts & python app.py"]
+CMD ["bash", "-c", "mlflow server --host 0.0.0.0 --port 5102 --backend-store-uri file:/app/mlruns --default-artifact-root /app/mlartifacts --serve-artifacts & python app.py"]
 
 #docker build -t pipelines_with_mlflow_docker .    
 
