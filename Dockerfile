@@ -11,6 +11,7 @@ RUN pip install --no-cache-dir -r requirements_docker.txt
 COPY app.py .
 COPY MLModel.py .
 COPY constants.py .
+COPY streamlit_app.py .
 COPY mlruns ./mlruns
 COPY mlartifacts ./mlartifacts
 

@@ -98,12 +98,26 @@ services:
     ports:
       - "8080:8080"
       - "5102:5102"
+    volumes:
+      - shared-reports:/app/reports
+    restart: always
+    networks:
+      - default
+
+  streamlit:
+    image: mlsecops
+    command: streamlit run streamlit_app.py --server.port=8501 --server.address=0.0.0.0
+    ports:
+      - "8501:8501"
+    volumes:
+      - shared-reports:/app/reports
     restart: always
     networks:
       - default
 
 volumes:
   postgres-db-volume:
+  shared-reports:
 
 networks:
   default:

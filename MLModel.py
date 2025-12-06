@@ -13,6 +13,8 @@ from sklearn.preprocessing import LabelEncoder, StandardScaler
 from mlflow.artifacts import download_artifacts
 from evidently import Report
 from evidently.presets import DataSummaryPreset
+import streamlit as st
+import streamlit.components.v1 as components
 
 
 pd.set_option("display.max_columns", None)
@@ -271,10 +273,11 @@ class MLModel:
         report = Report(metrics=[DataSummaryPreset()])
         my_eval = report.run(current_data=test_results, reference_data=None)
         
-        # Save report as MLflow artifact
-        my_eval.save_html('report.html')
-        mlflow.log_artifact('report.html')
-        os.remove('report.html')
+        # Save report as MLflow artifact and in shared volume
+        os.makedirs('/app/reports', exist_ok=True)
+        report_path = '/app/reports/report.html'
+        my_eval.save_html(report_path)
+        mlflow.log_artifact(report_path)
 
         return train_accuracy, test_accuracy
 
