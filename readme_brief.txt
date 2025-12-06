@@ -11,11 +11,11 @@ API ip: http://127.0.0.1:8080
 mlflow server --host 127.0.0.1 --port 5102
 MLFlow ip: http://127.0.0.1:5102
 
-BUILD DOCKER IMAGE
-docker build -t mlsecops .
-
 RUN DOCKER FILE (runs both mlflow and api)
 docker run -p 8080:8080 -p 5102:5102 mlsecops
+
+BUILD DOCKER IMAGE
+docker build -t mlsecops .
 
 START DOCKER COMPOSE
 docker-compose -f docker-compose-airflow.yml up -d
