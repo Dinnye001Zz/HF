@@ -12,12 +12,12 @@ docker build -t MlSecOps .
 RUN DOCKER FILE (runs both mlflow and api)
 docker run -p 8080:8080 -p 5102:5102 mlsecops
 
+START DOCKER COMPOSE
+docker-compose -f docker-compose-airflow.yml up -d
+
 Airflow: http://127.0.0.1:8090
 Username: admin
 Pw: admin
-
-START DOCKER COMPOSE
-docker-compose -f docker-compose-airflow.yml up -d
 
 STOP DOCKER COMPOSE
 docker-compose -f docker-compose-airflow.yml down
@@ -50,29 +50,3 @@ INFERENCE EXAMPLE:
     "6"
   ]
 }
-
-data_analysis_and_preprocessing.py df column order after preprocessing:
-'country'
-'city'
-'property_type'
-'furnishing_status',
-'property_size_sqft'
-'price'
-'constructed_year'
-'previous_owners',
-'rooms'
-'bathrooms'
-'garage'
-'garden'
-'crime_cases_reported',
-'legal_cases_on_property'
-'customer_salary'
-'loan_amount',
-'loan_tenure_years'
-'monthly_expenses'
-'down_payment',
-'emi_to_income_ratio'
-'satisfaction_score'
-'neighbourhood_rating',
-'connectivity_score'
-'decision'
