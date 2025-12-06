@@ -1,19 +1,25 @@
 Create venv: 'python -m venv .venv'
 Run tests: 'pytest tests/test_train_inference.py'
+
 Run app.py/flask app: 'python app.py'
 API ip: http://127.0.0.1:8080
-MLFlow ip: http://127.0.0.1:5102
 mlflow server --host 127.0.0.1 --port 5102
-(docker build -t MlSecOps .)
-docker run -p 8080:8080 -p 5102:5102 mlsecops #docker runs both mlflow and api
+MLFlow ip: http://127.0.0.1:5102
+
+BUILD DOCKER IMAGE
+docker build -t MlSecOps .
+
+RUN DOCKER FILE (runs both mlflow and api)
+docker run -p 8080:8080 -p 5102:5102 mlsecops
+
 Airflow: http://127.0.0.1:8090
 Username: admin
 Pw: admin
 
-#start docker compose
+START DOCKER COMPOSE
 docker-compose -f docker-compose-airflow.yml up -d
 
-#stop docker compose
+STOP DOCKER COMPOSE
 docker-compose -f docker-compose-airflow.yml down
 
 INFERENCE EXAMPLE:
