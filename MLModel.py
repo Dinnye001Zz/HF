@@ -11,6 +11,9 @@ from sklearn.metrics import accuracy_score
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 from mlflow.artifacts import download_artifacts
+from evidently import Report
+from evidently.presets import DataSummaryPreset
+
 
 pd.set_option("display.max_columns", None)
 
@@ -259,6 +262,19 @@ class MLModel:
 
         print("Train Accuracy: ", train_accuracy)
         print("Test Accuracy: ", test_accuracy)
+
+        # Generate Evidently Data Summary Report
+        test_results = X_test.copy()
+        test_results['target'] = y_test.values
+        test_results['prediction'] = y_test_pred
+        
+        report = Report(metrics=[DataSummaryPreset()])
+        my_eval = report.run(current_data=test_results, reference_data=None)
+        
+        # Save report as MLflow artifact
+        my_eval.save_html('report.html')
+        mlflow.log_artifact('report.html')
+        os.remove('report.html')
 
         return train_accuracy, test_accuracy
 
