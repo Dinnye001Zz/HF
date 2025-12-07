@@ -200,7 +200,7 @@ curl -X POST http://localhost:8080/model/register \
   }'
 ```
 
-## 📚 API Documentation
+## API Documentation
 
 ### Interactive API Docs
 
@@ -255,7 +255,7 @@ Register a trained model in MLflow model registry.
 }
 ```
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 HF/
