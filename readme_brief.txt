@@ -24,6 +24,8 @@ Airflow: http://127.0.0.1:8090
 Username: admin
 Pw: admin
 
+Streamlit Dashboard: http://127.0.0.1:8501
+
 STOP DOCKER COMPOSE
 docker-compose -f docker-compose-airflow.yml down
 
